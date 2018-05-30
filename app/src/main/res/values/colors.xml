@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg">#1f2224</color>
+    <color name="bg_dark">#141617</color>
+    <color name="overlay">#33000000</color>
+
+    <color name="selectable_focused">#22FFFFFF</color>
+    <color name="selectable_pressed">#55FFFFFF</color>
+
+    <color name="colorPrimary">#FF3F51B5</color>
+    <color name="colorPrimaryDark">#FF303F9F</color>
+    <color name="colorAccent">#FF5C6BC0</color>
+
+    <color name="trans_white">#99FFFFFF</color>
+    <color name="div_white">#22FFFFFF</color>
+
+    <color name="text_color">#ffffff</color>
+    <color name="secondary_text_color">#AAFFFFFF</color>
+</resources>
