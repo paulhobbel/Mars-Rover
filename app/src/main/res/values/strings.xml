@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">Mars Photos</string>
     <string name="title_activity_detail">DetailActivity</string>
+    
+    
+    <string name="loading_data">Loading photos</string>
 </resources>

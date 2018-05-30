@@ -2,6 +2,7 @@ package me.paulhobbel.marsphotos.providers;
 
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -21,35 +22,39 @@ import me.paulhobbel.marsphotos.providers.models.Photo;
 
 public class PhotoProvider {
 
-    private Uri baseUri = Uri.parse("https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos");
+    private final Uri baseUri = Uri.parse("https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos");
 
-    private RequestQueue queue;
+    private final RequestQueue queue;
+    private final ProviderListener listener;
 
-    public PhotoProvider(Context context) {
+    public PhotoProvider(Context context, ProviderListener listener) {
         this.queue = Volley.newRequestQueue(context);
+        this.listener = listener;
     }
 
-    public void getPhotos(int page, String camera, final ListCallback callback) {
+    public void getPhotos(int page, String camera) {
         Uri uri = baseUri.buildUpon()
                 .appendQueryParameter("sol", "1000")
                 .appendQueryParameter("page", page + "")
-                .appendQueryParameter("camera", camera)
                 .appendQueryParameter("api_key", "0ZBjXZ07Yeyh14xMENH7bU2YVqrbI1TsgNdzlDPG")
                 .build();
 
+        if(camera != null && camera.length() > 0) {
+            uri = uri.buildUpon().appendQueryParameter("camera", camera).build();
+        }
 
         JsonObjectRequest request = new JsonObjectRequest(
                 Request.Method.GET, uri.toString(), null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        callback.onProviderSuccess(formatResponse(response));
+                        listener.onProviderSuccess(formatResponse(response));
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        callback.onProviderFailed(error);
+                        listener.onProviderFailed(error);
                     }
                 });
 
@@ -73,7 +78,7 @@ public class PhotoProvider {
         return result;
     }
 
-    public interface ListCallback {
+    public interface ProviderListener {
         void onProviderSuccess(List<Photo> photos);
         void onProviderFailed(VolleyError error);
     }
