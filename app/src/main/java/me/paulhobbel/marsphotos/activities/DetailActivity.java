@@ -31,7 +31,7 @@ public class DetailActivity extends AppCompatActivity {
         Log.d("DETAIL_ACTIVITY", "onCreate: " + photo);
 
         image = findViewById(R.id.detail_photo);
-        title = findViewById(R.id.metaCameraText);
+        title = findViewById(R.id.detail_title);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
