@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string-array name="cameras_array">
-        <item>Front Hazard Avoidance Camera</item>
-        <item>Rear Hazard Avoidance Camera</item>
-        <item>Mast Camera</item>
-        <item></item>
-    </string-array>
-</resources>

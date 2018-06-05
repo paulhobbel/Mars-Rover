@@ -2,6 +2,7 @@ package me.paulhobbel.marsphotos.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
@@ -27,6 +28,7 @@ import me.paulhobbel.marsphotos.providers.models.Photo;
 public class PhotoListFragment extends Fragment implements PhotoListAdapter.OnItemClickListener,
         PhotoProvider.ProviderListener {
 
+    public static final String ARG_SOL = "arg_sol";
     public static final String ARG_CAMERA = "arg_camera";
 
     private enum State { UNINITIALIZED, LOADING, LOADED, FULLY_LOADED }
@@ -41,16 +43,17 @@ public class PhotoListFragment extends Fragment implements PhotoListAdapter.OnIt
 
     private State state = State.UNINITIALIZED;
 
-    private int page = 1;
-    private String camera;
+    private PhotoProvider.Filter filter = new PhotoProvider.Filter();
 
-    public static PhotoListFragment newInstance(String camera) {
+    public static PhotoListFragment newInstance(int sol, String camera) {
         PhotoListFragment fragment = new PhotoListFragment();
 
         Bundle arguments = new Bundle();
+        arguments.putInt(ARG_SOL, sol);
         arguments.putString(ARG_CAMERA, camera);
 
         fragment.setArguments(arguments);
+
         return fragment;
     }
 
@@ -61,9 +64,8 @@ public class PhotoListFragment extends Fragment implements PhotoListAdapter.OnIt
         provider = new PhotoProvider(getActivity(), this);
 
         if(getArguments() != null) {
-            camera = getArguments().getString(ARG_CAMERA);
-        } else {
-            camera = "all";
+            filter.setSol(getArguments().getInt(ARG_SOL));
+            filter.setCamera(getArguments().getString(ARG_CAMERA));
         }
     }
 
@@ -84,14 +86,15 @@ public class PhotoListFragment extends Fragment implements PhotoListAdapter.OnIt
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                if(state == State.LOADED){
+                if(state == State.LOADED) {
                     int visibleItems = layoutManager.getChildCount();
                     int totalItems = layoutManager.getItemCount();
                     int firstVisibleItem = layoutManager.findFirstVisibleItemPosition();
 
                     if ((totalItems - visibleItems) <= firstVisibleItem + 10) {
                         setState(State.LOADING);
-                        provider.getPhotos(page++, camera);
+                        filter.setPage(filter.getPage()+1);
+                        provider.getPhotos(filter);
                         Log.d("PHOTO_LIST", "onScrolled: " + "More content available, fetching next page, STATE = " + state);
                     }
                 }
@@ -117,10 +120,11 @@ public class PhotoListFragment extends Fragment implements PhotoListAdapter.OnIt
         switch (state) {
             case UNINITIALIZED:
                 progressOverlay.setVisibility(View.VISIBLE);
+                break;
             case LOADED:
-                progressOverlay.setVisibility(View.GONE);
             case FULLY_LOADED:
-                
+                progressOverlay.setVisibility(View.GONE);
+                break;
         }
     }
 
@@ -133,8 +137,10 @@ public class PhotoListFragment extends Fragment implements PhotoListAdapter.OnIt
     }
 
     @Override
-    public void onProviderSuccess(List<Photo> newPhotos) {
+    public void onProviderSuccess(List<Photo> newPhotos, PhotoProvider.Filter usedFilter) {
+        filter = usedFilter;
         photos.addAll(newPhotos);
+
         photoAdapter.notifyDataSetChanged();
         setState(newPhotos.size() > 0 ? State.LOADED : State.FULLY_LOADED);
 
@@ -153,7 +159,8 @@ public class PhotoListFragment extends Fragment implements PhotoListAdapter.OnIt
         if(photoAdapter.getItemCount() == 0) {
             Log.d("PHOTO_LIST", "onActivityCreated: Populating RecyclerView, STATE = " + state);
             setState(State.UNINITIALIZED);
-            provider.getPhotos(page++, camera);
+
+            provider.getPhotos(filter);
         }
     }
 }

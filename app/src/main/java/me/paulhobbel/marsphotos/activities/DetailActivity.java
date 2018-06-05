@@ -1,11 +1,9 @@
 package me.paulhobbel.marsphotos.activities;
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -30,8 +28,10 @@ public class DetailActivity extends AppCompatActivity {
 
         photo = (Photo) getIntent().getSerializableExtra(PHOTO_ARG);
 
+        Log.d("DETAIL_ACTIVITY", "onCreate: " + photo);
+
         image = findViewById(R.id.detail_photo);
-        title = findViewById(R.id.detail_title);
+        title = findViewById(R.id.metaCameraText);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

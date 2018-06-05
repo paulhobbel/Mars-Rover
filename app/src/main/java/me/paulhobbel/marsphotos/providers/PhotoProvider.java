@@ -32,15 +32,15 @@ public class PhotoProvider {
         this.listener = listener;
     }
 
-    public void getPhotos(int page, String camera) {
+    public void getPhotos(final Filter filter) {
         Uri uri = baseUri.buildUpon()
-                .appendQueryParameter("sol", "1000")
-                .appendQueryParameter("page", page + "")
+                .appendQueryParameter("sol", filter.getSol() + "")
+                .appendQueryParameter("page", filter.getPage() + "")
                 .appendQueryParameter("api_key", "0ZBjXZ07Yeyh14xMENH7bU2YVqrbI1TsgNdzlDPG")
                 .build();
 
-        if(camera != null && camera.length() > 0) {
-            uri = uri.buildUpon().appendQueryParameter("camera", camera).build();
+        if(filter.getCamera() != null && filter.getCamera().length() > 0) {
+            uri = uri.buildUpon().appendQueryParameter("camera", filter.getCamera()).build();
         }
 
         JsonObjectRequest request = new JsonObjectRequest(
@@ -48,7 +48,8 @@ public class PhotoProvider {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        listener.onProviderSuccess(formatResponse(response));
+                        List<Photo> result = formatResponse(response);
+                        listener.onProviderSuccess(result, filter);
                     }
                 },
                 new Response.ErrorListener() {
@@ -61,15 +62,14 @@ public class PhotoProvider {
         this.queue.add(request);
     }
 
-    public List<Photo> formatResponse(JSONObject object) {
+    private List<Photo> formatResponse(JSONObject object) {
         List<Photo> result = new ArrayList<>();
 
         try {
             JSONArray rawArray = object.getJSONArray("photos");
 
             for(int i = 0; i < rawArray.length(); i++) {
-                Photo photo = new Photo().formatObject(rawArray.getJSONObject(i));
-                result.add(photo);
+                result.add(new Photo().formatObject(rawArray.getJSONObject(i)));
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -78,8 +78,38 @@ public class PhotoProvider {
         return result;
     }
 
+    public static class Filter {
+        private int sol = 1000;
+        private int page = 1;
+        private String camera;
+
+        public int getSol() {
+            return sol;
+        }
+
+        public void setSol(int sol) {
+            this.sol = sol;
+        }
+
+        public int getPage() {
+            return page;
+        }
+
+        public void setPage(int page) {
+            this.page = page;
+        }
+
+        public String getCamera() {
+            return camera;
+        }
+
+        public void setCamera(String camera) {
+            this.camera = camera;
+        }
+    }
+
     public interface ProviderListener {
-        void onProviderSuccess(List<Photo> photos);
+        void onProviderSuccess(List<Photo> photos, Filter filter);
         void onProviderFailed(VolleyError error);
     }
 }

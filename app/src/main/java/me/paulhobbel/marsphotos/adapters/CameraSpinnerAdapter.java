@@ -11,17 +11,10 @@ import android.widget.TextView;
 
 import java.util.List;
 
-public class CameraSpinnerAdapter extends ArrayAdapter<CameraSpinnerAdapter.CameraItem> implements AdapterView.OnItemSelectedListener {
-
-    private OnItemSelectedListener itemSelectedListener;
+public class CameraSpinnerAdapter extends ArrayAdapter<CameraSpinnerAdapter.CameraItem> {
 
     public CameraSpinnerAdapter(@NonNull Context context) {
         super(context, android.R.layout.simple_spinner_dropdown_item);
-    }
-
-    public CameraSpinnerAdapter(@NonNull Context context, @NonNull List<CameraItem> objects) {
-        super(context, android.R.layout.simple_spinner_dropdown_item, objects);
-
     }
 
     @NonNull
@@ -39,27 +32,17 @@ public class CameraSpinnerAdapter extends ArrayAdapter<CameraSpinnerAdapter.Came
         return textView;
     }
 
-    public void setItemSelectedListener(OnItemSelectedListener listener) {
-        itemSelectedListener = listener;
-    }
-
-    @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        if(itemSelectedListener != null) {
-            itemSelectedListener.onItemSelected(view, getItem(position));
-        }
-    }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> parent) {
-
-    }
-
     public static class CameraItem {
+        int sol;
         String key;
         String name;
 
         public CameraItem(String key, String name) {
+            this(key, name, 1000);
+        }
+
+        public CameraItem(String key, String name, int sol) {
+            this.sol = sol;
             this.key = key;
             this.name = name;
         }
@@ -68,20 +51,12 @@ public class CameraSpinnerAdapter extends ArrayAdapter<CameraSpinnerAdapter.Came
             return key;
         }
 
+        public int getSol() {
+            return sol;
+        }
+
         public String getName() {
             return name;
         }
-
-        @Override
-        public String toString() {
-            return "CameraItem{" +
-                    "key='" + key + '\'' +
-                    ", name='" + name + '\'' +
-                    '}';
-        }
-    }
-
-    public interface OnItemSelectedListener {
-        void onItemSelected(View view, CameraItem item);
     }
 }
