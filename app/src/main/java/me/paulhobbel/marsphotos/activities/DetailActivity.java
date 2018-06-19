@@ -26,7 +26,7 @@ public class DetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
-        photo = (Photo) getIntent().getSerializableExtra(PHOTO_ARG);
+        photo = (Photo) getIntent().getParcelableExtra(PHOTO_ARG);
 
         Log.d("DETAIL_ACTIVITY", "onCreate: " + photo);
 
@@ -37,7 +37,7 @@ public class DetailActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setTitle("Photo ID: " + photo.getId());
-        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         title.setText(photo.getCamera().getFullName());
         Picasso.get().load(photo.getImage()).into(image);

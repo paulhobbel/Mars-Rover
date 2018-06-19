@@ -15,6 +15,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,7 +79,7 @@ public class PhotoProvider {
         return result;
     }
 
-    public static class Filter {
+    public static class Filter implements Serializable {
         private int sol = 1000;
         private int page = 1;
         private String camera;

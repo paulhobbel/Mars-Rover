@@ -1,5 +1,8 @@
 package me.paulhobbel.marsphotos.providers.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -9,7 +12,20 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Rover implements JSONModel<Rover>, Serializable {
+public class Rover implements JSONModel<Rover>, Parcelable {
+
+    public static final Creator<Rover> CREATOR = new Creator<Rover>() {
+        @Override
+        public Rover createFromParcel(Parcel in) {
+            return new Rover(in);
+        }
+
+        @Override
+        public Rover[] newArray(int size) {
+            return new Rover[size];
+        }
+    };
+
     private int id;
     private String name;
     private String status;
@@ -21,9 +37,23 @@ public class Rover implements JSONModel<Rover>, Serializable {
     private int maxSol;
     private int totalPhotos;
 
-    private final List<Camera> cameras = new ArrayList<>();
+    private final List<Camera> cameras;
 
-    public Rover() { }
+    public Rover() {
+        cameras = new ArrayList<>();
+    }
+
+    protected Rover(Parcel in) {
+        id = in.readInt();
+        name = in.readString();
+        status = in.readString();
+        landingDate = in.readString();
+        launchDate = in.readString();
+        maxDate = in.readString();
+        maxSol = in.readInt();
+        totalPhotos = in.readInt();
+        cameras = in.createTypedArrayList(Camera.CREATOR);
+    }
 
     public int getId() {
         return id;
@@ -122,6 +152,24 @@ public class Rover implements JSONModel<Rover>, Serializable {
         }
 
         return this;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
+        dest.writeString(name);
+        dest.writeString(status);
+        dest.writeString(landingDate);
+        dest.writeString(launchDate);
+        dest.writeString(maxDate);
+        dest.writeInt(maxSol);
+        dest.writeInt(totalPhotos);
+        dest.writeTypedList(cameras);
     }
 
     @Override

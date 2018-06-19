@@ -1,11 +1,27 @@
 package me.paulhobbel.marsphotos.providers.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
 
-public class Photo implements JSONModel<Photo>, Serializable {
+public class Photo implements JSONModel<Photo>, Parcelable {
+
+    public static final Creator<Photo> CREATOR = new Creator<Photo>() {
+        @Override
+        public Photo createFromParcel(Parcel in) {
+            return new Photo(in);
+        }
+
+        @Override
+        public Photo[] newArray(int size) {
+            return new Photo[size];
+        }
+    };
+
     private int id;
     private int sol;
 
@@ -15,6 +31,15 @@ public class Photo implements JSONModel<Photo>, Serializable {
     private Rover rover;
 
     public Photo() { }
+
+    protected Photo(Parcel in) {
+        id = in.readInt();
+        sol = in.readInt();
+        camera = in.readParcelable(Camera.class.getClassLoader());
+        image = in.readString();
+        earthDate = in.readString();
+        rover = in.readParcelable(Rover.class.getClassLoader());
+    }
 
     public int getId() {
         return id;
@@ -87,5 +112,20 @@ public class Photo implements JSONModel<Photo>, Serializable {
                 ", earthDate='" + earthDate + '\'' +
                 ", rover=" + rover +
                 '}';
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
+        dest.writeInt(sol);
+        dest.writeParcelable(camera, flags);
+        dest.writeString(image);
+        dest.writeString(earthDate);
+        dest.writeParcelable(rover, flags);
     }
 }

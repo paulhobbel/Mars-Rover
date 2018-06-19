@@ -31,13 +31,17 @@ public class PhotoListFragment extends Fragment implements PhotoListAdapter.OnIt
     public static final String ARG_SOL = "arg_sol";
     public static final String ARG_CAMERA = "arg_camera";
 
+    private static final String STATE_FILTER = "STATE_FILTER";
+    private static final String STATE_STATE = "STATE_STATE";
+    private static final String STATE_PHOTOS = "STATE_PHOTOS";
+
     private enum State { UNINITIALIZED, LOADING, LOADED, FULLY_LOADED }
 
     private LinearLayoutManager layoutManager;
     private RecyclerView recyclerView;
     private ConstraintLayout progressOverlay;
 
-    private List<Photo> photos = new ArrayList<>();
+    private ArrayList<Photo> photos;
     private PhotoListAdapter photoAdapter;
     private PhotoProvider provider;
 
@@ -63,9 +67,16 @@ public class PhotoListFragment extends Fragment implements PhotoListAdapter.OnIt
 
         provider = new PhotoProvider(getActivity(), this);
 
-        if(getArguments() != null) {
+        if(savedInstanceState != null) {
+            filter = (PhotoProvider.Filter) savedInstanceState.getSerializable(STATE_FILTER);
+            photos = savedInstanceState.getParcelableArrayList(STATE_PHOTOS);
+            state = (State) savedInstanceState.getSerializable(STATE_STATE);
+
+            Log.d("PHOTO_LIST", "onCreate: " + photos.size());
+        } else if(getArguments() != null) {
             filter.setSol(getArguments().getInt(ARG_SOL));
             filter.setCamera(getArguments().getString(ARG_CAMERA));
+            photos = new ArrayList<>();
         }
     }
 
@@ -76,6 +87,7 @@ public class PhotoListFragment extends Fragment implements PhotoListAdapter.OnIt
         layoutManager = new LinearLayoutManager(getActivity());
 
         photoAdapter = new PhotoListAdapter(photos);
+        Log.d("PHOTO_LIST", "onCreateView: " + photoAdapter.getItemCount());
         photoAdapter.setItemClickListener(this);
 
         progressOverlay = view.findViewById(R.id.progress_overlay);
@@ -101,12 +113,9 @@ public class PhotoListFragment extends Fragment implements PhotoListAdapter.OnIt
             }
         });
 
-        return view;
-    }
+        updateUi();
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+        return view;
     }
 
     public void setState(State state) {
@@ -156,11 +165,20 @@ public class PhotoListFragment extends Fragment implements PhotoListAdapter.OnIt
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        if(photoAdapter.getItemCount() == 0) {
+        if(photos.size() == 0) {
             Log.d("PHOTO_LIST", "onActivityCreated: Populating RecyclerView, STATE = " + state);
             setState(State.UNINITIALIZED);
 
             provider.getPhotos(filter);
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putSerializable(STATE_FILTER, filter);
+        outState.putSerializable(STATE_STATE, state);
+        outState.putParcelableArrayList(STATE_PHOTOS, photos);
+
+        super.onSaveInstanceState(outState);
     }
 }
